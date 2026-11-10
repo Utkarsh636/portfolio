@@ -1,0 +1,253 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Theme CSS Variables (defaults to JARVIS) ─── */
+:root {
+  --accent: #00d4ff;
+  --accent-rgb: 0, 212, 255;
+  --accent-dim: rgba(0, 212, 255, 0.12);
+  --accent-glow: rgba(0, 212, 255, 0.35);
+  --bloom-intensity: 0.6;
+  --glitch-amount: 0;
+  --hud-border: rgba(0, 212, 255, 0.2);
+  --bg: #050508;
+  --bg-rgb: 5, 5, 8;
+  --text-primary: #e0e4f0;
+  --text-dim: rgba(224, 228, 240, 0.4);
+  --font-display: "Orbitron", sans-serif;
+  --font-body: "Rajdhani", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* ─── Base Reset ─── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 400;
+  overflow-x: hidden;
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: none; }
+
+/* ─── Cursor restore for touch ─── */
+@media (pointer: coarse) {
+  body { cursor: auto; }
+}
+
+/* ─── HUD Utilities ─── */
+.hud-border {
+  border: 1px solid var(--hud-border);
+}
+
+.hud-glow {
+  box-shadow: 0 0 20px var(--accent-dim), inset 0 0 20px rgba(var(--accent-rgb), 0.03);
+}
+
+.hud-text {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.glass {
+  background: rgba(var(--bg-rgb), 0.6);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
+/* ─── Section base ─── */
+.section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  padding: 4rem 0;
+}
+
+/* ─── Scanline overlay (controlled by --glitch-amount) ─── */
+.scanlines::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(var(--accent-rgb), 0.015) 2px,
+    rgba(var(--accent-rgb), 0.015) 4px
+  );
+  opacity: var(--glitch-amount, 0);
+}
+
+/* ─── Corner bracket mixin ─── */
+.corner-bracket {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+.corner-bracket::before,
+.corner-bracket::after {
+  content: "";
+  position: absolute;
+  background: var(--accent);
+  opacity: 0.4;
+  transition: opacity 0.3s;
+}
+.corner-bracket::before { width: 100%; height: 1px; }
+.corner-bracket::after  { width: 1px; height: 100%; }
+
+.corner-tl { top: 0; left: 0; }
+.corner-tl::before { top: 0; left: 0; }
+.corner-tl::after  { top: 0; left: 0; }
+
+.corner-tr { top: 0; right: 0; }
+.corner-tr::before { top: 0; right: 0; }
+.corner-tr::after  { top: 0; right: 0; }
+
+.corner-bl { bottom: 0; left: 0; }
+.corner-bl::before { bottom: 0; left: 0; }
+.corner-bl::after  { bottom: 0; left: 0; }
+
+.corner-br { bottom: 0; right: 0; }
+.corner-br::before { bottom: 0; right: 0; }
+.corner-br::after  { bottom: 0; right: 0; }
+
+/* ─── Additional animations ─── */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes glitchFlicker {
+  0%, 100% { opacity: 1; }
+  33% { opacity: 0.85; }
+  66% { opacity: 0.95; }
+}
+
+.animate-float {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ─── Mobile responsiveness ─── */
+@media (max-width: 768px) {
+  .section {
+    min-height: auto;
+    padding: 5rem 0;
+  }
+
+  /* Hide custom cursor on mobile */
+  body {
+    cursor: auto;
+  }
+
+  /* Reduce particle density hint */
+  canvas {
+    opacity: 0.7;
+  }
+
+  /* Make HUD elements more compact */
+  .corner-bracket {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 3rem 0;
+  }
+}
+
+/* ─── Section dividers ─── */
+.section-divider {
+  position: relative;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 5%, var(--accent-dim) 30%, var(--accent) 50%, var(--accent-dim) 70%, transparent 95%);
+  opacity: 0.3;
+  z-index: 11;
+}
+.section-divider::after {
+  content: "";
+  position: absolute;
+  inset: -20px 0;
+  background: radial-gradient(ellipse at center, rgba(var(--accent-rgb), 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ─── Scan line animation for HUD ─── */
+@keyframes scan-line {
+  0% { top: 0; }
+  100% { top: 100vh; }
+}
+.animate-scan-line {
+  animation: scan-line 6s linear infinite;
+}
+
+/* ─── Performance: will-change hints for animated elements ─── */
+.glass,
+.hud-glow {
+  will-change: backdrop-filter;
+}
+
+/* ─── Reduced motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Focus visible for accessibility ─── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ─── Terminal input caret color ─── */
+input {
+  caret-color: var(--accent);
+}
